@@ -6,12 +6,18 @@ const STAKING_REWARDS_API_ENDPOINT = "https://api.stakingrewards.com/public/quer
 // import dotenv from "dotenv";
 // dotenv.config();
 
-const LIQUID_STAKING_QUERY = (limit: number) => `
+interface StakingQueryParams {
+  symbols?: string[];
+  typeKeys?: string[];
+  limit?: number;
+}
+
+const LIQUID_STAKING_QUERY = ({ symbols = ["ETH", "SOL"], typeKeys = ["liquid-staking"], limit = 15 }: StakingQueryParams) => `
     query GetBestLiquidStaking {
         rewardOptions(
             where: {
-                inputAsset: { slugs: ["solana", "ethereum"] }
-                typeKeys: ["liquid-staking"]
+                inputAsset: { symbols: ${JSON.stringify(symbols)} }
+                typeKeys: ${JSON.stringify(typeKeys)}
             }
             limit: ${limit}
             order: { metricKey_desc: "reward_rate" }
@@ -47,7 +53,7 @@ const LIQUID_STAKING_QUERY = (limit: number) => `
     }
 `;
 
-export const getBestLiquidStaking = async (limit: number = 5): Promise<StakingRewardsResponse> => {
+export const getBestLiquidStaking = async (params: StakingQueryParams = {}): Promise<StakingRewardsResponse> => {
     try {
         const response = await fetch(STAKING_REWARDS_API_ENDPOINT, {
             method: "POST",
@@ -55,7 +61,7 @@ export const getBestLiquidStaking = async (limit: number = 5): Promise<StakingRe
                 "Content-Type": "application/json",
                 "X-API-KEY": import.meta.env.VITE_STAKING_REWARDS_API_KEY,
             },
-            body: JSON.stringify({ query: LIQUID_STAKING_QUERY(limit) }),
+            body: JSON.stringify({ query: LIQUID_STAKING_QUERY(params) }),
         });
 
         if (!response.ok) {
