@@ -6,6 +6,7 @@ import {
 	wormhole,
 	TokenId,
 	TokenTransfer,
+	TokenBridge,
 } from '@wormhole-foundation/sdk';
 import evm from '@wormhole-foundation/sdk/evm';
 import solana from '@wormhole-foundation/sdk/solana';
@@ -18,17 +19,17 @@ import { SignerStuff, getSigner, getTokenDecimals } from '../helpers/helpers';
 	const wh = await wormhole('Testnet', [evm, solana, sui, aptos]);
 
 	// Grab chain Contexts -- these hold a reference to a cached rpc client
-	const sendChain = wh.getChain('BaseSepolia');
-	const rcvChain = wh.getChain('Monad');
+	const sendChain = wh.getChain('Ethereum');
+	const rcvChain = wh.getChain('Solana');
 
 	// Get signer from local key but anything that implements
 	// Signer interface (e.g. wrapper around web wallet) should work
 	const source = await getSigner(sendChain);
 	const destination = await getSigner(rcvChain);
 
-	
+	const weth_contract = '0x7b79995e5f793a07bc00c21412e50ecae098e7f9'
 	// Shortcut to allow transferring native gas token
-	const token = Wormhole.tokenId(sendChain.chain, 'native');
+	const token = Wormhole.tokenId(sendChain.chain, weth_contract);
 
 	// Define the amount of tokens to transfer
 	const amt = '0.01';
@@ -44,7 +45,13 @@ import { SignerStuff, getSigner, getTokenDecimals } from '../helpers/helpers';
 	// Used to normalize the amount to account for the tokens decimals
 	const decimals = await getTokenDecimals(wh, token, sendChain);
 
-	// Perform the token transfer if no recovery transaction ID is provided
+	// Check if token is wrapped
+
+	const tbDest = await rcvChain.getTokenBridge();
+	await tbDest.getWrappedAsset(token);
+
+
+	// Continue with transfer if wrapped...
 	const xfer = await tokenTransfer(wh, {
 		token,
 		amount: amount.units(amount.parse(amt, decimals)),
