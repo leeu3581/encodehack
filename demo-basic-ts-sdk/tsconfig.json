@@ -13,6 +13,6 @@
 		"noEmit": true,
 		"outDir": "./dist"
 	},
-	"include": ["src/**/*"],
+	"include": ["src/**/*", "src/services/**/*"],
 	"exclude": ["node_modules"]
 }
