@@ -39,14 +39,12 @@ To set up and run the project, follow these steps:
 
 **Frontend (Demo SDK)**
 1.  Navigate to the frontend project directory:
-	cd demo-basic-ts-sdk
+ cd demo-basic-ts-sdk
 2.  Install all the required dependencies:
-	npm i, 
-
+ npm i, 
 This downloads all the packages listed in the package.json file so the project can run properly.
 3.  Start the frontend development server:
-	npm run start, 
-
+ npm run start, 
 This runs the frontend on a local development server.
 ______________
 **Backend (Python Information Service)**
