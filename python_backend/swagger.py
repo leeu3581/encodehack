@@ -85,6 +85,12 @@ When processing responses that contain chain IDs, you should:
 For example:
 - If you see Chain 2, you should display it as "Ethereum"
 - If you see Chain 1, you should display it as "Solana"
+
+When discussing the number of transactions and the volume, or the amount of volume:
+1. Always use the get_cross_chain_activity tool to get the data
+2. Always use the timespan parameter to get the data for the time range you are interested in
+3. Always use the from_time and to_time parameters to get the data for the time range you are interested in
+
 """
     }
 ]
@@ -102,49 +108,6 @@ swagger = requests.get(swagger_url).json()
 
 from langchain.tools import tool
 import requests
-
-'''
-@tool
-def get_governor_config(
-    page: int = 1,
-    pageSize: int = 1
-) -> dict:
-    """
-    Fetch governor configuration data from the WormholeScan API.
-    
-    Parameters:
-    - page (int): The page number to retrieve (default 1)
-    - pageSize (int): The number of items per page (default 1)
-    """
-    base_url = "https://api.wormholescan.io/api/v1/governor/config"
-    params = {
-        "page": page,
-        "pageSize": pageSize
-    }
-    print(f"Making request to {base_url} with params: {params}")
-    response = requests.get(base_url, params=params)
-    print(f"Response status code: {response.status_code}")
-    
-    try:
-        data = response.json()
-        print(f"Response data: {data}")
-        
-        # Check if the response has the expected structure
-        if isinstance(data, dict):
-            if 'data' in data:
-                return data['data']
-            elif 'message' in data:
-                return {"error": data['message']}
-        
-        return data
-    except Exception as e:
-        print(f"Error processing response: {str(e)}")
-        return {
-            "error": str(e),
-            "status_code": response.status_code,
-            "text": response.text
-        }
-'''
 
 @tool
 def get_observations_by_tx(
@@ -177,8 +140,22 @@ def get_observations_by_tx(
     try:
         response = requests.get(url, params=params)
         response.raise_for_status()  # Raises HTTPError if the status is 4xx/5xx
-        print(response.text)
-        return response.json()
+        data = response.json()
+        cleaned = []
+
+        for obs in data["observations"]:
+            cleaned.append({
+                "Emitter Chain": obs.get("emitterChain"),
+                "Emitter Address": obs.get("emitterAddress"),
+                "Sequence": obs.get("sequence"),
+                "Guardian Address": obs.get("guardianAddress"),
+                "Tx Hash": obs.get("txHash"),
+                "Timestamp": datetime.fromtimestamp(obs.get("timestamp", 0)).strftime('%Y-%m-%d %H:%M:%S'),
+                "Signature": obs.get("signature")[:10] + "..." if obs.get("signature") else None
+            })
+
+        return cleaned
+
     except Exception as e:
         return {
             "error": str(e),
@@ -190,7 +167,7 @@ def get_observations_by_tx(
 def get_cross_chain_activity(
     timespan: str = "1d",
     from_time: str = "2025-04-10T15:04:05Z",
-    to_time: str = "2025-04-12T15:04:04Z",
+    to_time: str = "2025-04-13T15:04:04Z",
     appId=None, sourceChain=None, targetChain=None
 ) -> dict:
     """
@@ -215,52 +192,18 @@ def get_cross_chain_activity(
     if appId:
         params["appId"] = appId
 
-    # Convert sourceChain and targetChain from name to ID if they are provided
-    '''
-    if sourceChain:
-        sourceChain_id = chain_name_to_id.get(sourceChain)
-        if sourceChain_id:
-            params["sourceChain"] = sourceChain_id
-        else:
-            return {"error": f"Invalid sourceChain name: {sourceChain}"}
-    #if sourceChain:
-    #    params["sourceChain"] = sourceChain
-
-
-    # Convert targetChain from name to ID if it is provided
-    if targetChain:
-        targetChain_id = chain_name_to_id.get(targetChain)
-        if targetChain_id:
-            params["targetChain"] = targetChain_id
-        else:
-            return {"error": f"Invalid targetChain name: {targetChain}"}
-'''
-
-    #if targetChain:
-    #    params["targetChain"] = targetChain
-
     try:
         response = requests.get(url, params=params)
         response.raise_for_status()
-        return response.json()
-        # Loop through each item in the response_data and update the chainID
-        for item in response_data.get("response", []):
-            # Check if 'chain' is in the item and map it to the ID
-            chain_name = item.get("chain", None)
-            if chain_name:
-                chain_id = chain_name_to_id.get(chain_name)
-                if chain_id:
-                    item["chainID"] = chain_id  # Replace the chain name with the numeric chain ID
-                    del item["chain"]  # Optionally, remove the 'chain' field if no longer needed
-        
-        return response_data
+        data = response.json()
+        return data
+    
     except Exception as e:
         return {
             "error": str(e),
             "status_code": response.status_code if 'response' in locals() else None
         }
 
-        
 
 
 @tool
