@@ -26,11 +26,12 @@ XchainGPT delegates specific tasks to specialized agents to complete user workfl
 - `stake_agent`: Stakes and unstakes tokens on supported chains  
 - `wrap_token_agent`: Create wrapped tokens
 - `mayan_fast_settlement_agent`: Agent for fast settlement transfers
-
+- `wormhole_data_agent`: Fetches and reasons over wormholescan data 
 
 ### Example of successful WH fast transfer across chains:
 
 **Origin Transaction Hash (Ethereum):** [0x98f8703072d3c0f8e9a479ffd7cdc3899c0b06546378b7a0aec2a0b55ba95b01](https://etherscan.io/tx/0x98f8703072d3c0f8e9a479ffd7cdc3899c0b06546378b7a0aec2a0b55ba95b01) 
+
 **Destination Transaction Hash (Solana):** [3TAYt2CXK2oiwXkPooU8UDqPVyLUYdfNMuWsrw2PqkNpAfrsbGuTi22RGWPxhxjsM9QsTBQ6mzc4bHCMASvnP3H7](https://solscan.io/tx/3TAYt2CXK2oiwXkPooU8UDqPVyLUYdfNMuWsrw2PqkNpAfrsbGuTi22RGWPxhxjsM9QsTBQ6mzc4bHCMASvnP3H7) The transaction involved transferring **0.0026 WETH* from Ethereum and receiving *0.025994274 wSOL* on Solana. Everything has been completed successfully.
 
 
