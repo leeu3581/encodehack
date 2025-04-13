@@ -39,7 +39,7 @@ XchainGPT delegates specific tasks to specialized agents to complete user workfl
 **Destination Transaction Hash (Solana):** [3TAYt2CXK2oiwXkPooU8UDqPVyLUYdfNMuWsrw2PqkNpAfrsbGuTi22RGWPxhxjsM9QsTBQ6mzc4bHCMASvnP3H7](https://solscan.io/tx/3TAYt2CXK2oiwXkPooU8UDqPVyLUYdfNMuWsrw2PqkNpAfrsbGuTi22RGWPxhxjsM9QsTBQ6mzc4bHCMASvnP3H7) The transaction involved transferring **0.0026 WETH* from Ethereum and receiving *0.025994274 wSOL* on Solana. Everything has been completed successfully.
 
 
-# Wormhole Data Agent
+## Wormhole Data Agent
 
 This Python module creates a LangChain agent that interacts with the WormholeScan API to fetch blockchain bridge data (e.g., transactions and cross-chain activity).
 Loads a chain ID name mapping. 
@@ -48,7 +48,7 @@ Formats results in human-readable form.
 Uses an OpenAI LLM (gpt-4) as the reasoning engine. 
 Enables natural language queries via the agent. 
 
-Key Parts & Their Purpose: 
+**Key Parts & Their Purpose:**
 
 1. **chain_name_to_id** / **id_to_chain_name** Maps blockchain names (like "Ethereum") to their numeric chain IDs used in API responses, and vice versa. 
 2. **system_prompt** Provides instructions to the LLM on how to: Convert chain IDs to names in outputs. Use tools to fetch real-time data. Present data in a user-friendly way. 
@@ -58,9 +58,7 @@ Key Parts & Their Purpose:
 6. **get_last_wormhole_transactions(...)** Purpose: Fetches recent Wormhole bridge transactions. Key features: Hits /api/v1/last-txs. Can filter by time and sample rate. Handles different response formats safely. 
 7. **agent = initialize_agent(...)** Purpose: Initializes a LangChain OpenAI-powered agent with the three tools above. Behavior: Can take natural language questions like: “How many transactions happened on Ethereum yesterday?” “Show me observations from this transaction hash.” The agent decides which tool(s) to use to answer based on the prompt and the tools’ descriptions. 
 
-**good queries:**
-{"What is the observation for today of 1 page and a pagesize of 2?"}
-(to test the get_observations_by_tx function)
+**Example queries:**
 
 {"query":"What was the cross chain activity of tokens from the past 1 days till now?"}
 (to test the get_cross_chain_activity function)
