@@ -21,7 +21,7 @@ XchainGPT abstracts away the need for users to interact with multiple smart cont
 
 XchainGPT delegates specific tasks to specialized agents to complete user workflows. These include:
 
-- `manager_agent`: high level planning
+- `manager_agent`: high level planning and delegation to other agents
 - `bridge_transfer_agent`: Handles generic cross-chain token transfers  
 - `stake_agent`: Stakes and unstakes tokens on supported chains  
 - `wrap_token_agent`: Create wrapped tokens
