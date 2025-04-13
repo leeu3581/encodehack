@@ -30,6 +30,8 @@ XchainGPT delegates specific tasks to specialized agents to complete user workfl
 - `mayan_fast_settlement_agent`: Agent for fast settlement transfers
 - `wormhole_data_agent`: Fetches and reasons over wormholescan data (see below for python backend module)
 
+  Navigate to `src/agents` to view agents. `wormhole_data_agent` is in python module.
+
 ### Example of successful WH fast transfer across chains:
 
 **Origin Transaction Hash (Ethereum):** [0x98f8703072d3c0f8e9a479ffd7cdc3899c0b06546378b7a0aec2a0b55ba95b01](https://etherscan.io/tx/0x98f8703072d3c0f8e9a479ffd7cdc3899c0b06546378b7a0aec2a0b55ba95b01) 
