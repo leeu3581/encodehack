@@ -19,6 +19,8 @@ XchainGPT abstracts away the need for users to interact with multiple smart cont
 
 ## 🧠 Multi-Agent System
 
+![XchainGPT architecture](architecture.png)
+
 XchainGPT delegates specific tasks to specialized agents to complete user workflows. These include:
 
 - `manager_agent`: high level planning and delegation to other agents
