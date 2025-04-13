@@ -30,3 +30,34 @@ Key Parts & Their Purpose:
 
 {"query":"Show me the transactions in the past 9 hours"}
 (to test the get_last_wormhole_transactions function)
+
+
+______________
+# Setup Instructions
+
+To set up and run the project, follow these steps:
+
+**Frontend (Demo SDK)**
+1.  Navigate to the frontend project directory:
+	cd demo-basic-ts-sdk
+2.  Install all the required dependencies:
+	npm i, 
+
+This downloads all the packages listed in the package.json file so the project can run properly.
+3.  Start the frontend development server:
+	npm run start, 
+
+This runs the frontend on a local development server.
+______________
+**Backend (Python Information Service)**
+1.	Navigate to the backend folder:
+	cd python_backend
+2.	Install the Python dependencies:
+	pip install -r requirements.txt
+This command installs all the necessary Python packages listed in the requirements.txt file, which are needed for the backend server to run.
+3.	Run the Python backend service:
+	python Flask.py
+This will start the Flask server, which powers the backend information service module.
+4.  After the server is running, you can access the service at:
+	http://localhost:5000/query
+
