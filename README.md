@@ -1,5 +1,37 @@
 # XchainGPT
-What the program does overall:
+
+**XchainGPT** is a multi-agent, cross-chain DeFi operator powered by LLMs. It enables seamless, intelligent interaction across **Solana** and **Ethereum** networks using the **Wormhole SDK**.
+
+With XchainGPT, users can issue natural-language commands to complete complex DeFi operations—like transferring tokens between chains or staking assets—while agents work together in the background to execute the required steps.
+
+## 🔗 What XchainGPT Can Do
+
+XchainGPT simplifies cross-chain DeFi by supporting:
+
+- 🔁 **Transfer tokens between chains**  
+- 📥 **Stake tokens** on a chain  
+- 📤 **Unstake tokens** from a chain  
+- 💰 **Check token balances** on a chain  
+- 💹 **Check token prices** on a chain  
+- 📊 **Fetch Wormhole protocol data**
+
+XchainGPT abstracts away the need for users to interact with multiple smart contracts and protocols—just tell it what you want, and it coordinates everything using its agent system.
+
+## 🧠 Multi-Agent System
+
+XchainGPT delegates specific tasks to specialized agents to complete user workflows. These include:
+
+- `manager_agent`: high level planning
+- `bridge_transfer_agent`: Handles cross-chain token bridging  
+- `stake_agent`: Stakes and unstakes tokens on supported chains  
+- `wrap_token_agent`: Create wrapped tokens
+- `mayan_fast_settlement_agent`: Agent for fast settlement transfers
+
+
+### Example of successful WH fast transfer across chains:
+
+**Origin Transaction Hash (Ethereum):** [0x98f8703072d3c0f8e9a479ffd7cdc3899c0b06546378b7a0aec2a0b55ba95b01](https://etherscan.io/tx/0x98f8703072d3c0f8e9a479ffd7cdc3899c0b06546378b7a0aec2a0b55ba95b01) 
+**Destination Transaction Hash (Solana):** [3TAYt2CXK2oiwXkPooU8UDqPVyLUYdfNMuWsrw2PqkNpAfrsbGuTi22RGWPxhxjsM9QsTBQ6mzc4bHCMASvnP3H7](https://solscan.io/tx/3TAYt2CXK2oiwXkPooU8UDqPVyLUYdfNMuWsrw2PqkNpAfrsbGuTi22RGWPxhxjsM9QsTBQ6mzc4bHCMASvnP3H7) The transaction involved transferring **0.0026 WETH* from Ethereum and receiving *0.025994274 wSOL* on Solana. Everything has been completed successfully.
 
 This program creates a LangChain agent that interacts with the WormholeScan API to fetch blockchain bridge data (e.g., transactions and cross-chain activity).
 Loads a chain ID name mapping. 
@@ -39,12 +71,14 @@ To set up and run the project, follow these steps:
 
 **Frontend (Demo SDK)**
 1.  Navigate to the frontend project directory:
- cd demo-basic-ts-sdk
+	cd demo-basic-ts-sdk
 2.  Install all the required dependencies:
- npm i, 
+	npm i, 
+
 This downloads all the packages listed in the package.json file so the project can run properly.
 3.  Start the frontend development server:
- npm run start, 
+	npm run start, 
+
 This runs the frontend on a local development server.
 ______________
 **Backend (Python Information Service)**
