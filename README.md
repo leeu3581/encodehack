@@ -33,7 +33,10 @@ XchainGPT delegates specific tasks to specialized agents to complete user workfl
 **Origin Transaction Hash (Ethereum):** [0x98f8703072d3c0f8e9a479ffd7cdc3899c0b06546378b7a0aec2a0b55ba95b01](https://etherscan.io/tx/0x98f8703072d3c0f8e9a479ffd7cdc3899c0b06546378b7a0aec2a0b55ba95b01) 
 **Destination Transaction Hash (Solana):** [3TAYt2CXK2oiwXkPooU8UDqPVyLUYdfNMuWsrw2PqkNpAfrsbGuTi22RGWPxhxjsM9QsTBQ6mzc4bHCMASvnP3H7](https://solscan.io/tx/3TAYt2CXK2oiwXkPooU8UDqPVyLUYdfNMuWsrw2PqkNpAfrsbGuTi22RGWPxhxjsM9QsTBQ6mzc4bHCMASvnP3H7) The transaction involved transferring **0.0026 WETH* from Ethereum and receiving *0.025994274 wSOL* on Solana. Everything has been completed successfully.
 
-This program creates a LangChain agent that interacts with the WormholeScan API to fetch blockchain bridge data (e.g., transactions and cross-chain activity).
+
+# Wormhole Data Agent
+
+This Python module creates a LangChain agent that interacts with the WormholeScan API to fetch blockchain bridge data (e.g., transactions and cross-chain activity).
 Loads a chain ID name mapping. 
 Sets up tools (API wrappers) to fetch data.
 Formats results in human-readable form. 
