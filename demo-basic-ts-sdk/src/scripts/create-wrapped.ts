@@ -6,35 +6,39 @@ import { inspect } from 'util';
 import { getSigner } from '../helpers/helpers';
 import { SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 
-(async function () {
+export type { TokenId };
+export type CreateWrappedResult = { chain: string; address: string };
+
+async function waitForWrappedAsset(tbDest: any, tokenId: TokenId, destChain: any) {
+	while (true) {
+		try {
+			const wrapped = await tbDest.getWrappedAsset(tokenId);
+			return { chain: destChain.chain, address: wrapped };
+		} catch (e) {
+			console.error('Wrapped asset not found yet. Retrying...');
+		}
+		console.log('Waiting before checking again...');
+		await new Promise((r) => setTimeout(r, 2000));
+	}
+}
+
+export const createWrappedToken = async (
+	sourceChainName: string,
+	destChainName: string,
+	tokenAddress: string,
+): Promise<CreateWrappedResult> => {
+
+
 	const wh = await wormhole('Testnet', [evm, solana, sui]);
 	console.log("🚀 ~ create-wrapped.ts:10 ~ wh:", wh)
 
 	// Define the source and destination chains
-	const origChain = wh.getChain('Sepolia');
+	const origChain = wh.getChain(sourceChainName as "Ethereum" | "Solana");
+	const destChain = wh.getChain(destChainName as "Ethereum" | "Solana");
 
-	// funds on the destination chain needed!
-	const destChain = wh.getChain('Solana');
-
-	// if (!process.env.SOLANA_PRIVATE_KEY) {
-	// 	throw new Error("SOLANA_PRIVATE_KEY is required");
-	// }
-
-	// const agent = new SolanaAgentKit(
-	// 	process.env.SOLANA_PRIVATE_KEY,
-	// 	"https://api.mainnet-beta.solana.com",
-	// 	{ OPENAI_API_KEY: process.env.OPENAI_API_KEY } // optional config
-	//   );
-	  
-	//   // Create LangChain tools
-	// const tools = createSolanaTools(agent);
-
-	// console.log(tools);
-
-	// Retrieve the token ID(for ERC-20)from the source chain
-	const erc20TokenAddress = '0xD8C1a4680ac117Abe7Be8f55c2c8Fa5a73ffdedF'; // Custom ERC-20 Token Address
-    const erc20TokenId: TokenId = Wormhole.tokenId(origChain.chain, erc20TokenAddress);
-    console.log('ERC20 Token ID for Avalanche Sepolia (Example):', erc20TokenId);
+	// Retrieve the token ID for the provided token address
+	const tokenId: TokenId = Wormhole.tokenId(origChain.chain, tokenAddress);
+	console.log(`Token ID for ${sourceChainName}:`, tokenId);
 
 	// Retrieve the token ID(for native)from the source chain
 	// const token = await origChain.getNativeWrappedTokenId();
@@ -44,58 +48,32 @@ import { SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 	const { signer: destSigner } = await getSigner(destChain, gasLimit);
 	const tbDest = await destChain.getTokenBridge();
 
-
 	// Check if the token is already wrapped on the destination chain
 	try {
-		const wrapped = await tbDest.getWrappedAsset(erc20TokenId);
+		const wrapped = await tbDest.getWrappedAsset(tokenId);
 		console.log(`Token already wrapped on ${destChain.chain}. Skipping attestation.`);
-
-		return { chain: destChain.chain, address: wrapped };
+		return { chain: destChain.chain, address: wrapped.toString() };
 	} catch (e) {
 		console.log(`No wrapped token found on ${destChain.chain}. Proceeding with attestation.`);
 	}
 
 	// Source chain signer setup
 	const { signer: origSigner } = await getSigner(origChain);
-
-	// Add validation before attestation
 	const tbOrig = await origChain.getTokenBridge();
-
-	// Validate the token contract exists
-	try {
-		const tokenContract = await origChain.getTokenContract(erc20TokenAddress);
-		console.log('Token contract found:', tokenContract.address);
-	} catch (e) {
-		throw new Error(`Token contract not found at ${erc20TokenAddress}. Please verify the address.`);
-	}
-
-	// Check signer balance
-	const balance = await origSigner.getBalance();
-	if (balance === 0n) {
-		throw new Error('Signer has no ETH for gas. Please fund the account first.');
-	}
 
 	// Create the attestation transaction
 	const attestTxns = tbOrig.createAttestation(
-		erc20TokenAddress,
+		tokenId.address,
 		Wormhole.parseAddress(origSigner.chain(), origSigner.address())
 	);
 
-	// Submit the attestation transaction
+	let txid: string;
 	try {
 		const txids = await signSendWait(origChain, attestTxns, origSigner);
-		console.log('txids: ', inspect(txids, { depth: null }));
-		const txid = txids[0]!.txid;
-		console.log('Created attestation (save this): ', txid);
+		txid = txids[0]!.txid;
+		console.log('Created attestation: ', txid);
 	} catch (error: any) {
 		console.error('Attestation failed:', error);
-		if (error.receipt) {
-			console.error('Transaction receipt:', {
-				status: error.receipt.status,
-				gasUsed: error.receipt.gasUsed.toString(),
-				blockNumber: error.receipt.blockNumber
-			});
-		}
 		throw error;
 	}
 
@@ -108,7 +86,7 @@ import { SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 	const vaa = await wh.getVaa(msgs[0]!, 'TokenBridge:AttestMeta', timeout);
 
 	if (!vaa) {
-		throw new Error('VAA not found after retries exhausted. Try extending the timeout.');
+		throw new Error('VAA not found after retries exhausted');
 	}
 
 	console.log('Token Address: ', vaa.payload.token.address);
@@ -125,19 +103,10 @@ import { SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 	const tsx = await signSendWait(destChain, subAttestation, destSigner);
 	console.log('Transaction hash: ', tsx);
 
-	// Poll for the wrapped asset until it's available
-	async function waitForIt() {
-		do {
-			try {
-				const wrapped = await tbDest.getWrappedAsset(erc20TokenId);
-				return { chain: destChain.chain, address: wrapped };
-			} catch (e) {
-				console.error('Wrapped asset not found yet. Retrying...');
-			}
-			console.log('Waiting before checking again...');
-			await new Promise((r) => setTimeout(r, 2000));
-		} while (true);
-	}
+	// Wait for wrapped asset
+	const result = await waitForWrappedAsset(tbDest, tokenId, destChain);
+	console.log('Wrapped Asset: ', result);
+	return result;
+};
 
-	console.log('Wrapped Asset: ', await waitForIt());
-})().catch((e) => console.error(e));
+
